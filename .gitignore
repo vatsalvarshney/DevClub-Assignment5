@@ -6,3 +6,6 @@ env/
 
 .gitsecret/keys/random_seed
 !*.secret
+
+*.pyc
+__pycache__
