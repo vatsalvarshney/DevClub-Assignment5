@@ -1,0 +1,38 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+{{ course }}
+{% endblock %}
+
+{% block content %}
+<h1>{{ course }}: {{ course.title }}</h1>
+{% if not enrolled %}
+    You are not enrolled in this course
+{% else %}
+    <h2>Course Description</h2>
+    <p>{{ course.description }}</p>
+    <h2>Participants</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+        </tr>
+        <tr>
+            <td>{{ course.coordinator.name }}</td>
+            <td>Coordinator</td>
+        </tr>
+        {% for u in course.teachers.all %}
+        <tr>
+            <td>{{ u.name }}</td>
+            <td>Teacher</td>
+        </tr>
+        {% endfor %}
+        {% for u in course.students.all %}
+        <tr>
+            <td>{{ u.name }}</td>
+            <td>Student</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+{% endblock %}

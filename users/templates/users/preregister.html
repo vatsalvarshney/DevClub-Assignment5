@@ -1,0 +1,12 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+<div>Are you a Student or an Instructor?</div>
+<div><a href="{% url 'register-student' %}">Student</a></div>
+<div><a href="{% url 'register-instructor' %}">Instructor</a></div>
+Already have an account? <a href="{% url 'login' %}">Sign In</a>
+{% endblock %}

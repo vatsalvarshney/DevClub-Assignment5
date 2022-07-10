@@ -1,0 +1,14 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+{{ course }}
+{% endblock %}
+
+{% block content %}
+<h1>{{ course }}: {{ course.title }}</h1>
+{% if not enrolled %}
+    You are not enrolled in this course
+{% else %}
+    <a href="info/{{ course.id }}">Information</a>
+{% endif %}
+{% endblock %}

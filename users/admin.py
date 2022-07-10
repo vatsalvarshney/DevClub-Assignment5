@@ -1,7 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
-
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
@@ -9,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from users.models import CustomUser
+from .models import CustomUser, Role
 
 
 class UserCreationForm(forms.ModelForm):
@@ -59,12 +57,16 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('kerberos',)
+    list_display = ('kerberos', 'name', 'department', 'roles')
+
+    def roles(self, obj):
+        return "; ".join([r.get_id_display() for r in obj.role.all()])
+
     list_filter = ()
     fieldsets = (
         (None, {'fields': ('kerberos', 'password')}),
         ('Personal info', {'fields': ('first_name', 'middle_name', 'last_name', 'department', 'email',)}),
-        ('Permissions', {'fields': ('is_instructor', 'is_student', 'is_staff', 'is_superuser', 'is_active')}),
+        ('Permissions', {'fields': ('role', 'is_staff', 'is_superuser', 'is_active')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -81,6 +83,7 @@ class UserAdmin(BaseUserAdmin):
 
 # Now register the new UserAdmin...
 admin.site.register(CustomUser, UserAdmin)
+admin.site.register(Role)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)
