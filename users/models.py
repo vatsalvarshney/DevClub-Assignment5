@@ -1,6 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
+import os
+from django.conf import settings
+
+
+
+class Role(models.Model):
+    admin = 1
+    instructor = 2
+    student = 3
+    role_choices = (
+        (admin, 'Admin'),
+        (instructor, 'Instructor'),
+        (student, 'Student')
+    )
+    
+    id=models.PositiveSmallIntegerField(choices=role_choices,primary_key=True)
+
+    def __str__(self):
+        return self.get_id_display()
 
 
 class CustomUserManager(BaseUserManager):
@@ -37,21 +56,12 @@ class CustomUserManager(BaseUserManager):
         return user
 
 
-class Role(models.Model):
-    admin = 1
-    instructor = 2
-    student = 3
-    role_choices = (
-        (admin, 'Admin'),
-        (instructor, 'Instructor'),
-        (student, 'Student')
-    )
-    
-    id=models.PositiveSmallIntegerField(choices=role_choices,primary_key=True)
-
-    def __str__(self):
-        return self.get_id_display()
-
+def pfpUpload(instance, filename):
+    new_path=os.path.join('users/profile-pics', instance.kerberos+'.'+filename.split('.')[-1])
+    full_path=os.path.join(settings.MEDIA_ROOT,new_path)
+    if os.path.exists(full_path):
+        os.remove(full_path)
+    return new_path
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     kerberos        = models.CharField(max_length=9, unique=True)
@@ -60,6 +70,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name       = models.CharField(max_length=100, blank=True)
     department      = models.CharField(max_length=100)
     email           = models.EmailField(max_length=100)
+    profile_pic     = models.ImageField(upload_to=pfpUpload, default='users/default-pfp.jpg')
     role            = models.ManyToManyField(Role)
     is_staff        = models.BooleanField(default=False)
     is_active       = models.BooleanField(default=True)
@@ -76,4 +87,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     def name(self):
         return self.first_name+' '+self.middle_name+' '+self.last_name
+
+    def roles(self):
+        return "; ".join([r.get_id_display() for r in self.role.all()])
 

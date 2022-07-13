@@ -9,8 +9,10 @@
 {% if not enrolled %}
     You are not enrolled in this course
 {% else %}
-    <h2>Course Description</h2>
-    <p>{{ course.description }}</p>
+    {% if course.description != '' %}
+        <h2>Course Description</h2>
+        <p>{{ course.description }}</p>
+    {% endif %}
     <h2>Participants</h2>
     <table>
         <tr>
@@ -19,19 +21,21 @@
         </tr>
         <tr>
             <td>{{ course.coordinator.name }}</td>
-            <td>Coordinator</td>
+            <td>Coordinator, Teacher</td>
         </tr>
         {% for u in course.teachers.all %}
-        <tr>
-            <td>{{ u.name }}</td>
-            <td>Teacher</td>
-        </tr>
+            {% if u != course.coordinator %}
+            <tr>
+                <td>{{ u.name }}</td>
+                <td>Teacher</td>
+            </tr>
+            {% endif %}
         {% endfor %}
         {% for u in course.students.all %}
-        <tr>
-            <td>{{ u.name }}</td>
-            <td>Student</td>
-        </tr>
+            <tr>
+                <td>{{ u.name }}</td>
+                <td>Student</td>
+            </tr>
         {% endfor %}
     </table>
 {% endif %}

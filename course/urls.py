@@ -6,4 +6,5 @@ from . import views as course_views
 urlpatterns = [
     path('<slug:id>', course_views.coursePage, name='course-page'),
     path('info/<slug:id>', course_views.courseInfo, name='course-info')
+    # path('material/<slug:id>', course_views.courseMaterial, name='course-material')
 ]

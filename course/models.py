@@ -1,5 +1,7 @@
 from django.db import models
 from users.models import CustomUser
+import statistics, os, uuid
+from django.conf import settings
 
 
 class Course(models.Model):
@@ -30,7 +32,85 @@ class Course(models.Model):
     def __str__(self):
         return f'{self.semester}-{self.course_code}'
 
+    def grade_count(self):
+        return self.grade_set.all().count()
 
-# class Grade(models.Model):
-#     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-#     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    def grade_avg(self):
+        return statistics.fmean([g.grade for g in self.grade_set.all()])
+
+    def grade_stdev(self):
+        return statistics.stdev([g.grade for g in self.grade_set.all()])
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        ci = CourseSection(title='Course Information', course=self, access=3)
+        m = CourseSection(title='Materials', course=self)
+        ci.save()
+        m.save()
+        return super().save(*args, **kwargs)
+
+class CourseSection(models.Model):
+    class AccessChoices(models.IntegerChoices):
+        teachers_only = 2
+        everyone = 3
+    title = models.CharField(max_length=256)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    access = models.PositiveSmallIntegerField(choices=AccessChoices.choices, default=2)
+
+
+
+# def materialUpload(instance, filename):
+#     old_path=instance.file.path
+#     if os.path.exists(old_path):
+#         os.remove(old_path)
+#     return os.path.join(settings.MEDIA_ROOT, 'course', instance.section.course.__str__, '%s.%s' % (uuid.uuid4(), filename.split(".")[-1]))
+
+
+# class Material(models.Model):
+#     section = models.ForeignKey(CourseSection, on_delete=models.CASCADE)
+#     file = models.FileField(upload_to=materialUpload)
+#     author = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         limit_choices_to={'role': 2}
+#     )
+#     date_posted = models.DateTimeField()
+#     # access = models.PositiveIntegerField(choices=AccessChoices.choices, default=1)
+#     filename = models.CharField(max_length=256, default=file.name)
+
+#     def url(self):
+#         return self.file.url
+
+# class Post(models.Model):
+#     class AccessChoices(models.IntegerChoices):
+#         author_only = 1
+#         teachers_only = 2
+#         everyone = 3
+
+#     section = models.ForeignKey(
+#         CourseSection,
+#         on_delete=models.CASCADE
+#     )
+#     author = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         limit_choices_to={'role': 2}
+#     )
+#     time_posted = models.DateTimeField(auto_now_add=True)
+#     time_last_modified = models.DateTimeField(auto_now=True)
+#     access = models.PositiveSmallIntegerField(choices=AccessChoices.choices, default=1)
+#     title = models.CharField(max_length=256)
+
+
+
+
+class Grade(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    grade = models.FloatField()    
+
+    def __str__(self):
+        return str(self.grade)
+
+    class Meta:
+        ordering=('grade',)

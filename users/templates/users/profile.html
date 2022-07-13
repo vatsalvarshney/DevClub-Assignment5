@@ -1,0 +1,50 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+{{ view_user.name }}
+{% endblock %}
+
+{% block content %}
+<h1>{{ view_user.name }}</h1>
+<div><img src="{{ view_user.profile_pic.url }}" alt="" width="100"></div>
+{% if view_user == user %}
+<div><a href="{% url 'pwd-change' %}">Change password</a></div>
+<div><a href="{% url 'pfp-change' %}">Change Profile Picture</a></div>
+{% endif %}
+<h2>User Details</h2>
+<h3>Email address</h3>
+<a href="mailto:{{ view_user.email }}">{{ view_user.email }}</a>
+<h3>Roles</h3>
+{{ view_user.roles }}
+<h3>Last access to site</h3>
+{% if view_user == user %}
+Online
+{% elif view_user.last_login %}
+{{ view_user.last_login }}
+{% else %}
+Never
+{% endif %}
+{% if isstudent and isinstructor %}
+    <h2>Courses Teaching</h2>
+    {% for c in view_user.courses_coordinating.all %}
+        <a href="../course/{{ c.id }}">{{ c }}<br></a>
+    {% endfor %}
+    {% for c in view_user.courses_teaching.all %}
+        <a href="../course/{{ c.id }}">{{ c }}<br></a>
+    {% endfor %}
+    <h2>Courses Studying</h2>
+    {% for c in view_user.courses_studying.all %}
+        <a href="../course/{{ c.id }}">{{ c }}<br></a>
+    {% endfor %}
+{% elif isstudent %}
+    <h2>Courses</h2>
+    {% for c in view_user.courses_studying.all %}
+        <a href="../course/{{ c.id }}">{{ c }}<br></a>
+    {% endfor %}
+{% elif isinstructor %}
+    <h2>Courses</h2>
+    {% for c in view_user.courses_teaching.all %}
+        <a href="../course/{{ c.id }}">{{ c }}<br></a>
+    {% endfor %}
+{% endif %}
+{% endblock %}

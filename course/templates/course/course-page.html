@@ -10,5 +10,10 @@
     You are not enrolled in this course
 {% else %}
     <a href="info/{{ course.id }}">Information</a>
+    {% for sec in course.coursesection_set.all %}
+        {% if sec.access == 3 or isinstructor %}
+            <h2>{{ sec.title }}</h2>
+        {% endif %}
+    {% endfor %}
 {% endif %}
 {% endblock %}

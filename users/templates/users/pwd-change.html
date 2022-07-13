@@ -1,0 +1,15 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+Change Password
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    <fieldset>
+        {{ form.as_p }}
+    </fieldset>
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

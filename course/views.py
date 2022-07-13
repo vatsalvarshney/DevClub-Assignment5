@@ -20,9 +20,13 @@ def dashboard(request):
 
 def context(request, id):
     course=Course.objects.get(id=id)
+    isstudent=request.user.courses_studying.contains(course)
+    isinstructor=request.user.courses_teaching.contains(course) or request.user.courses_coordinating.contains(course)
     context= {
         'course': course,
-        'enrolled': request.user.courses_studying.contains(course) or request.user.courses_teaching.contains(course) or request.user.courses_coordinating.contains(course)
+        'isstudent': isstudent,
+        'isinstructor': isinstructor,
+        'enrolled': isstudent or isinstructor
     }
     return context
 
@@ -33,3 +37,7 @@ def coursePage(request, id):
 @login_required(login_url='login')
 def courseInfo(request, id):
     return render(request, 'course/course-info.html', context(request, id))
+
+# @login_required(login_url='login')
+# def courseMaterial(request):
+
