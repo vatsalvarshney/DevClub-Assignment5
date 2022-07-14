@@ -1,5 +1,7 @@
 demo/django-env
 env/
+media/course/*/*
+media/users/profile-pics/*
 
 .DS_Store
 
