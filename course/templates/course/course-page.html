@@ -9,10 +9,24 @@
 {% if not enrolled %}
     You are not enrolled in this course
 {% else %}
-    <a href="info/{{ course.id }}">Information</a>
+    {% if course.description != '' %}
+    <h2>Course Description</h2>
+    <p>{{ course.description }}</p>
+    {% endif %}
+    <a href="participants/{{ course.id }}">Participants</a><br>
+    {% if isinstructor %}
+        <a href="newdoc/{{ course.id }}">New Document</a>
+    {% endif %}
     {% for sec in course.coursesection_set.all %}
         {% if sec.access == 3 or isinstructor %}
             <h2>{{ sec.title }}</h2>
+            {% for item in sec.item_set.all %}
+                {% if item.access == 1 and item.author != user %}
+                {% elif item.access == 2 and isstudent %}
+                {% else %}
+                    <a href="{{ item.url }}"><img src="{{ item.icon }}" width="20" height="20">{{ item.display_text }}</a><br>
+                {% endif %}
+            {% endfor %}
         {% endif %}
     {% endfor %}
 {% endif %}

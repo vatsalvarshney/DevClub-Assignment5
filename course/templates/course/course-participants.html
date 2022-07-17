@@ -9,10 +9,6 @@
 {% if not enrolled %}
     You are not enrolled in this course
 {% else %}
-    {% if course.description != '' %}
-        <h2>Course Description</h2>
-        <p>{{ course.description }}</p>
-    {% endif %}
     <h2>Participants</h2>
     <table>
         <tr>
