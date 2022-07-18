@@ -15,7 +15,8 @@
     {% endif %}
     <a href="participants/{{ course.id }}">Participants</a><br>
     {% if isinstructor %}
-        <a href="newdoc/{{ course.id }}">New Document</a>
+        <a href="newdoc/{{ course.id }}">New Document</a><br>
+        <a href="newlink/{{ course.id }}">New Link</a>
     {% endif %}
     {% for sec in course.coursesection_set.all %}
         {% if sec.access == 3 or isinstructor %}

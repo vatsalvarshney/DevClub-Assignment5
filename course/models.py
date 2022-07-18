@@ -89,7 +89,6 @@ class Item(models.Model):
 class Document(models.Model):
 
     def material_upload(instance, filename):
-        # return os.path.join(settings.MEDIA_ROOT, 'course', str(instance.item.section.course.id), str(instance.item.section.id), '%s.%s' % (uuid.uuid4(), filename.split(".")[-1]))
         return os.path.join(settings.MEDIA_ROOT, 'course', str(instance.item.section.course.id), filename)
 
     item = models.OneToOneField(Item, on_delete=models.CASCADE)
@@ -125,7 +124,7 @@ class Link(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.item.icon=os.path.join(settings.MEDIA_ROOT, 'course/icons/url.jpg')
+        self.item.icon='/media/course/icons/url.jpg'
         if self._state.adding and self.item.display_text=='':
             self.item.display_text=self.url
         self.item.url=self.url

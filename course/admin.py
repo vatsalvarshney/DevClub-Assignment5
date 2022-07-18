@@ -14,11 +14,10 @@ class CourseSectionAdmin(admin.ModelAdmin):
 
 admin.site.register(Document)
 admin.site.register(Link)
-admin.site.register(Item)
-# class DocumentAdmin(admin.ModelAdmin):
-#     def course(self):
-#         return str(self.section.course)
-#     list_display = ('display_text', 'file')
+
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    readonly_fields= ('time_posted', 'time_last_modified')
 
 @admin.register(Grade)
 class GradeAdmin(admin.ModelAdmin):

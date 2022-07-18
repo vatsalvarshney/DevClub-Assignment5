@@ -50,33 +50,18 @@ class DocumentCreationForm(forms.ModelForm):
         model = Document
         fields = ('file',)
 
-# @login_required(login_url='login')
-# def createItem(request, id):
-#     if request.method == 'POST':
-#         form = ItemCreationForm(request.POST)
-#         if form.is_valid():
-#             item=Item(
-#                 author=request.user,
-#                 section=form.cleaned_data.get('section'),
-#                 access=form.cleaned_data.get('access'),
-#                 display_text=form.cleaned_data.get('display_text')
-#             )
-#             # item=form.save()
-#             # item.update(author=request.user)
-#             item.save()
-#             return createDocument(request, id, item)
-#     else:
-#         form=ItemCreationForm()
-#     return render(request, 'course/newitem.html', {'form': form})
+class LinkCreationForm(forms.ModelForm):
+    class Meta:
+        model = Link
+        fields = ('url',)
 
 
 @login_required(login_url='login')
-def createDocument(request, id):
+def createItem(request, id, model, modelform, modelfieldlist):
     c=context(request,id)
     if request.method == 'POST':
         iform = ItemCreationForm(request.POST)
-        form = DocumentCreationForm(request.FILES)
-        # if iform.is_valid() and form.is_valid():
+        form = modelform(request.POST, request.FILES)
         if iform.is_valid():
             item=Item(
                 author=request.user,
@@ -85,20 +70,24 @@ def createDocument(request, id):
                 display_text=iform.cleaned_data.get('display_text')
             )
             item.save()
-            doc=Document(
-                file=request.FILES['file'],
-                item=item
-            )
-            doc.item=item
-            doc.save()
-            item.url=doc.file.url
+            ins=model(item=item)
+            for field in modelfieldlist:
+                if request.POST.get(field) == None:
+                    setattr(ins, field, request.FILES.get(field))
+                else:
+                    setattr(ins, field, request.POST.get(field))
+            ins.save()
             item.save()
             return redirect(f'../{id}')
     else:
         iform=ItemCreationForm()
-        form=DocumentCreationForm()
+        form=modelform()
     c['iform']=iform
     c['form']=form
     return render(request, 'course/newitem.html', c)
-    # return render(request, 'course/newitem.html', {'iform': iform, 'form': form})
 
+def createLink(request, id):
+    return createItem(request, id, Link, LinkCreationForm, ['url'])
+
+def createDocument(request, id):
+    return createItem(request, id, Document, DocumentCreationForm, ['file'])
