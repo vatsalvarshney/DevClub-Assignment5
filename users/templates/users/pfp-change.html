@@ -3,12 +3,13 @@
 {% block title %}
 Change Profile Picture
 {% endblock %}
+
 {% block content %}
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <fieldset>
-        {{ form.as_p }}
-    </fieldset>
-    <button type="submit">Save</button>
-</form>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset>
+            {{ form.as_p }}
+        </fieldset>
+        <button type="submit">Save</button>
+    </form>
 {% endblock %}

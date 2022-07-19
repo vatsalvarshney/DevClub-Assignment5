@@ -1,0 +1,28 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+Update {{ item_type }} | {{ course }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ course }}: {{ course.title }}</h1>
+    {% if not enrolled %}
+        You are not enrolled in this course
+    {% else %}
+        {% if isstudent %}
+            You are not authorized to access this page. Contact the admin if you think this is a mistake.
+        {% else %}
+            <h2>Update {{ item_type }}</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset>
+                    {{ iform.as_p }}
+                </fieldset>
+                <fieldset>
+                    {{ form.as_p }}
+                </fieldset>
+                <button type="submit">Save</button>
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}

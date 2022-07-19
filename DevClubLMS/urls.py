@@ -35,5 +35,5 @@ urlpatterns = [
     path('user/pfpchange/', user_views.pfpChange, name='pfp-change'),
     path('', course_views.dashboardRedirect),
     path('dashboard/', course_views.dashboard, name='dashboard'),
-    path('course/', include('course.urls'), name='course')
+    path('course/<int:id>/', include('course.urls'), name='course')
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

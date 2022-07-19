@@ -5,29 +5,29 @@ Dashboard
 {% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
-<a href="../user/{{ user.kerberos }}">View profile</a>
-{% if isstudent and isinstructor %}
-    <h2>Courses Teaching</h2>
-    {% for c in user.courses_coordinating.all %}
-        <a href="../course/{{ c.id }}">{{ c }}<br></a>
-    {% endfor %}
-    {% for c in user.courses_teaching.all %}
-        <a href="../course/{{ c.id }}">{{ c }}<br></a>
-    {% endfor %}
-    <h2>Courses Studying</h2>
-    {% for c in user.courses_studying.all %}
-        <a href="../course/{{ c.id }}">{{ c }}<br></a>
-    {% endfor %}
-{% elif isstudent %}
-    <h2>Courses</h2>
-    {% for c in user.courses_studying.all %}
-        <a href="../course/{{ c.id }}">{{ c }}<br></a>
-    {% endfor %}
-{% elif isinstructor %}
-    <h2>Courses</h2>
-    {% for c in user.courses_teaching.all %}
-        <a href="../course/{{ c.id }}">{{ c }}<br></a>
-    {% endfor %}
-{% endif %}
+    <h1>Dashboard</h1>
+    <a href="../user/{{ user.kerberos }}">View profile</a>
+    {% if isstudent and isinstructor %}
+        <h2>Courses Teaching</h2>
+        {% for c in user.courses_coordinating.all %}
+            <a href="../course/{{ c.id }}">{{ c }}<br></a>
+        {% endfor %}
+        {% for c in user.courses_teaching.all %}
+            <a href="../course/{{ c.id }}">{{ c }}<br></a>
+        {% endfor %}
+        <h2>Courses Studying</h2>
+        {% for c in user.courses_studying.all %}
+            <a href="../course/{{ c.id }}">{{ c }}<br></a>
+        {% endfor %}
+    {% elif isstudent %}
+        <h2>Courses</h2>
+        {% for c in user.courses_studying.all %}
+            <a href="../course/{{ c.id }}">{{ c }}<br></a>
+        {% endfor %}
+    {% elif isinstructor %}
+        <h2>Courses</h2>
+        {% for c in user.courses_teaching.all %}
+            <a href="../course/{{ c.id }}">{{ c }}<br></a>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

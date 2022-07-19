@@ -5,12 +5,12 @@ Register
 {% endblock %}
 
 {% block content %}
-<form method="POST">
-    {% csrf_token %}
-    <fieldset>
-        {{ form.as_p }}
-    </fieldset>
-    <button type="submit">Register</button>
-</form>
-Already have an account? <a href="{% url 'login' %}">Sign In</a>
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+            {{ form.as_p }}
+        </fieldset>
+        <button type="submit">Register</button>
+    </form>
+    Already have an account? <a href="{% url 'login' %}">Sign In</a>
 {% endblock %}

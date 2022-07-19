@@ -1,38 +1,38 @@
 {% extends 'course/base.html' %}
 
 {% block title %}
-{{ course }}
+Participants | {{ course }}
 {% endblock %}
 
 {% block content %}
-<h1>{{ course }}: {{ course.title }}</h1>
-{% if not enrolled %}
-    You are not enrolled in this course
-{% else %}
-    <h2>Participants</h2>
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Role</th>
-        </tr>
-        <tr>
-            <td>{{ course.coordinator.name }}</td>
-            <td>Coordinator, Teacher</td>
-        </tr>
-        {% for u in course.teachers.all %}
-            {% if u != course.coordinator %}
+    <h1>{{ course }}: {{ course.title }}</h1>
+    {% if not enrolled %}
+        You are not enrolled in this course
+    {% else %}
+        <h2>Participants</h2>
+        <table>
             <tr>
-                <td>{{ u.name }}</td>
-                <td>Teacher</td>
+                <th>Name</th>
+                <th>Role</th>
             </tr>
-            {% endif %}
-        {% endfor %}
-        {% for u in course.students.all %}
             <tr>
-                <td>{{ u.name }}</td>
-                <td>Student</td>
+                <td><a href="../../../user/{{ course.coordinator.kerberos }}">{{ course.coordinator.name }}</a></td>
+                <td>Coordinator, Teacher</td>
             </tr>
-        {% endfor %}
-    </table>
-{% endif %}
+            {% for u in course.teachers.all %}
+                {% if u != course.coordinator %}
+                <tr>
+                    <td><a href="../../../user/{{ u.kerberos }}">{{ u.name }}</a></td>
+                    <td>Teacher</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            {% for u in course.students.all %}
+                <tr>
+                    <td><a href="../../../user/{{ u.kerberos }}">{{ u.name }}</a></td>
+                    <td>Student</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 {% endblock %}

@@ -64,13 +64,14 @@ class CourseSection(models.Model):
 
 
 
-class AccessChoices(models.IntegerChoices):
-    author_only = 1
-    teachers_only = 2
-    everyone = 3
-
 @cleanup.ignore
 class Item(models.Model):
+
+    class AccessChoices(models.IntegerChoices):
+        author_only = 1
+        teachers_only = 2
+        everyone = 3
+
     section = models.ForeignKey(CourseSection, on_delete=models.CASCADE)
     author = models.ForeignKey(
         CustomUser,
@@ -84,6 +85,28 @@ class Item(models.Model):
     display_text = models.CharField(max_length=200, blank=True)
     icon = models.ImageField(default='course/icons/default.jpg')
     url = models.URLField(max_length=500,blank=True)
+
+    def related_object(self):
+        try:
+            return self.document
+        except:
+            try:
+                return self.link
+            except:
+                return self.text
+    
+    def related_object_type(self):
+        try:
+            self.document
+            return 'document'
+        except:
+            try:
+                self.link
+                return 'link'
+            except:
+                self.text
+                return 'text'
+
 
 
 class Document(models.Model):
@@ -109,9 +132,10 @@ class Document(models.Model):
             **dict.fromkeys(['mov','mp4','wmv','avi','flv','mkv'], 'video.jpg')
         }
         self.item.icon='/media/course/icons/' + icon_list.get(ext, 'default.jpg')
-        if self._state.adding and self.item.display_text=='':
+        if self.item.display_text=='':
             self.item.display_text=self.file.name.split('/')[-1].split('.')[0]
         self.item.url=self.file.url
+        self.item.save()
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -128,10 +152,39 @@ class Link(models.Model):
         if self._state.adding and self.item.display_text=='':
             self.item.display_text=self.url
         self.item.url=self.url
+        self.item.save()
         return super().save(*args, **kwargs)
     
     def __str__(self):
         return self.url
+
+
+class Text(models.Model):
+    item = models.OneToOneField(Item, on_delete=models.CASCADE)
+    content = models.TextField()
+
+    def __str__(self):
+        n=50
+        s=self.content
+        if len(s)<=n:
+            return s
+        else:
+            return s[:n]+'...'
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.item.display_text=str(self)
+        self.item.save()
+        return super().save(*args, **kwargs)
+
+
+# class Page(models.Model):
+#     item = models.OneToOneField(Item, on_delete=models.CASCADE)
+#     section = models.OneToOneField(CourseSection, on_delete=models.CASCADE)
+#     title = models.CharField(max_length=200)
+
+
+    
 
 
 # class Post(models.Model):
