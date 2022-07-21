@@ -1,0 +1,24 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+Delete {{ item.related_object_type }} | {{ course }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ course }}: {{ course.title }}</h1>
+    {% if not enrolled %}
+        You are not enrolled in this course
+    {% else %}
+        {% if isstudent %}
+            You are not authorized to access this page. Contact the admin if you think this is a mistake.
+        {% else %}
+            <h3>Are you sure you want to delete the {{ item.related_object_type }} "{{ item.display_text }}"?</h3>
+            <div>The {{ item.related_object_type }} cannot be restored once deleted</div>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Delete</button>
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}

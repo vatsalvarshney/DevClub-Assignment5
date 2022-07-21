@@ -1,6 +1,7 @@
+from django.utils import timezone
 from django.db import models
 from users.models import CustomUser
-import statistics, os, uuid
+import statistics, os
 from django.conf import settings
 from django_cleanup import cleanup
 
@@ -45,19 +46,19 @@ class Course(models.Model):
     def save(self, *args, **kwargs):
         if self._state.adding == True:
             super().save(*args, **kwargs)
-            ci = CourseSection(title='Course Information', course=self, access=3)
             m = CourseSection(title='Materials', course=self)
-            ci.save()
             m.save()
         return super().save(*args, **kwargs)
 
 class CourseSection(models.Model):
     class AccessChoices(models.IntegerChoices):
+        author_only = 1
         teachers_only = 2
         everyone = 3
     title = models.CharField(max_length=200)
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
     access = models.PositiveSmallIntegerField(choices=AccessChoices.choices, default=2)
+    show_on_main_page = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.course)+': '+self.title
@@ -93,7 +94,10 @@ class Item(models.Model):
             try:
                 return self.link
             except:
-                return self.text
+                try:
+                    return self.text
+                except:
+                    return self.page
     
     def related_object_type(self):
         try:
@@ -104,8 +108,12 @@ class Item(models.Model):
                 self.link
                 return 'link'
             except:
-                self.text
-                return 'text'
+                try:
+                    self.text
+                    return 'text'
+                except:
+                    self.page
+                    return 'page'
 
 
 
@@ -178,13 +186,42 @@ class Text(models.Model):
         return super().save(*args, **kwargs)
 
 
-# class Page(models.Model):
+class Page(models.Model):
+    item = models.OneToOneField(Item, on_delete=models.CASCADE)
+    section = models.OneToOneField(CourseSection, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        self.section.show_on_main_page = False
+        self.section.save()
+        self.item.icon = '/media/course/icons/page.jpg'
+        if self.item.display_text == '':
+            self.item.display_text = self.section.title
+        self.item.save()
+        super().save(*args, **kwargs)
+        self.item.url = 'page/'+str(self.id)
+        self.item.save()
+        return super().save(*args, **kwargs)
+
+
+
+# class Assignment(models.Model):
 #     item = models.OneToOneField(Item, on_delete=models.CASCADE)
-#     section = models.OneToOneField(CourseSection, on_delete=models.CASCADE)
-#     title = models.CharField(max_length=200)
+#     release_time = models.DateTimeField(default=timezone.now)
+#     due_time = models.DateTimeField()
+#     late_due_time = models.DateTimeField(blank=True)
 
 
-    
+# class Quiz(models.Model):
+#     item = models.OneToOneField(Item, on_delete=models.CASCADE)
+#     duration = models.DurationField()
+#     allow_start_time = models.DateTimeField(default=timezone.now)
+#     disallow_start_time = models.DateTimeField()
+
+#     def latest_autosubmit_time(self):
+#         return self.disallow_start_time + self.duration
+        
+#     autosubmit_time = models.DateTimeField(default=latest_autosubmit_time)
+
 
 
 # class Post(models.Model):

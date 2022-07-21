@@ -1,7 +1,7 @@
 {% extends 'course/base.html' %}
 
 {% block title %}
-Delete {{ item.related_object_type }} | {{ course }}
+Update Section | {{ course }}
 {% endblock %}
 
 {% block content %}
@@ -12,12 +12,13 @@ Delete {{ item.related_object_type }} | {{ course }}
         {% if isstudent %}
             You are not authorized to access this page. Contact the admin if you think this is a mistake.
         {% else %}
-            <h3>Are you sure you want to delete "{{ item.display_text }}"?</h3>
-            <div>The item cannot be restored once deleted</div>
-            <form method="POST">
+            <h2>Update Section</h2>
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Delete</button>
+                <fieldset>
+                    {{ form.as_p }}
+                </fieldset>
+                <button type="submit">Save</button>
             </form>
         {% endif %}
     {% endif %}
