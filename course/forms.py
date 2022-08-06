@@ -1,5 +1,7 @@
 from django import forms
-from .models import Course, CourseSection, Item, Document, Link, Text, Page, Grade
+from .models import Course, CourseSection, Item, Document, Link, Text, Page, Assignment, Submission, Grade
+from django.forms.widgets import SelectDateWidget
+from django.contrib.admin.widgets import AdminSplitDateTime
 
 class CourseUpdateForm(forms.ModelForm):
     class Meta:
@@ -36,5 +38,29 @@ class TextCreationForm(forms.ModelForm):
         model = Text
         fields = ('content',)
 
-class DeleteConfirmationForm(forms.Form):
+class ConfirmationForm(forms.Form):
     agree = forms.BooleanField(label='I Agree')
+
+class AssignmentCreationForm(forms.ModelForm):
+    # due_time = forms.SplitDateTimeField(widget=AdminSplitDateTime)
+    # late_due_time = forms.SplitDateTimeField(widget=AdminSplitDateTime, required=False)
+    class Meta:
+        model = Assignment
+        fields = ('section', 'due_time', 'late_due_time', 'max_grade')
+
+class AssignmentUpdateForm(forms.ModelForm):
+    # due_time = forms.SplitDateTimeField(widget=AdminSplitDateTime)
+    # late_due_time = forms.SplitDateTimeField(widget=AdminSplitDateTime, required=False)
+    class Meta:
+        model = Assignment
+        fields = ('due_time', 'late_due_time', 'max_grade')
+
+class MakeSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ('submitted_file','submitted_file_name')
+
+class MarkGradeForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ('grade', 'grader_comments')

@@ -21,6 +21,7 @@ Update {{ item_type }} | {{ course }}
                 <fieldset>
                     {{ form.as_p }}
                 </fieldset>
+                <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
                 <button type="submit">Save</button>
             </form>
         {% endif %}

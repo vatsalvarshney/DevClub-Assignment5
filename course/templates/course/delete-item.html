@@ -17,6 +17,7 @@ Delete {{ item.related_object_type }} | {{ course }}
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
+                <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
                 <button type="submit">Delete</button>
             </form>
         {% endif %}

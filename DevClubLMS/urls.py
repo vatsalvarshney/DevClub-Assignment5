@@ -30,7 +30,7 @@ urlpatterns = [
     path('register/instructor/', user_views.registerInstructor, name='register-instructor'),
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
-    path('user/<slug:k>', user_views.profile),
+    path('user/<slug:k>', user_views.profile, name='profile'),
     path('user/pwdchange/', user_views.pwdChange, name='pwd-change'),
     path('user/pfpchange/', user_views.pfpChange, name='pfp-change'),
     path('', course_views.dashboardRedirect),

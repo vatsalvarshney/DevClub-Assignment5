@@ -5,6 +5,7 @@ New {{ item_type }} | {{ course }}
 {% endblock %}
 
 {% block content %}
+{% load static %}
     <h1>{{ course }}: {{ course.title }}</h1>
     {% if not enrolled %}
         You are not enrolled in this course
@@ -21,8 +22,18 @@ New {{ item_type }} | {{ course }}
                 <fieldset>
                     {{ form.as_p }}
                 </fieldset>
+                <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
                 <button type="submit">Create</button>
             </form>
         {% endif %}
     {% endif %}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}"/>
+    <script type="text/javascript" src="/admin/jsi18n/"></script>
+    <script type="text/javascript" src="/static/admin/js/core.js"></script>
+    <script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/static/admin/js/actions.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/calendar.js"></script>
+    <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
 {% endblock %}

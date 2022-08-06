@@ -23,13 +23,15 @@
             <p>{{ course.description }}</p>
         {% endif %}
         <a href="{% url 'course-participants' id=course.id %}">Participants</a><br>
+        <a href="{% url 'grades' id=course.id %}">Grades</a><br>
         {% if isinstructor %}
             <a href="{% url 'update-course' id=course.id %}">Edit Course</a><br>
             <a href="{% url 'create-section' id=course.id %}">New Section</a><br>
             <a href="{% url 'create-document' id=course.id %}">New Document</a><br>
             <a href="{% url 'create-link' id=course.id %}">New Link</a><br>
             <a href="{% url 'create-text' id=course.id %}">New Text Block</a><br>
-            <a href="{% url 'create-page' id=course.id %}">New Page</a>
+            <a href="{% url 'create-page' id=course.id %}">New Page</a><br>
+            <a href="{% url 'create-assignment' id=course.id %}">New Assignment</a>
         {% endif %}
         {% for sec in course.coursesection_set.all %}
             {% if sec.access == 3 or isinstructor %}

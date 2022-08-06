@@ -16,20 +16,20 @@ Participants | {{ course }}
                 <th>Role</th>
             </tr>
             <tr>
-                <td><a href="../../../user/{{ course.coordinator.kerberos }}">{{ course.coordinator.name }}</a></td>
+                <td><a href="{% url 'profile' k=course.coordinator.kerberos %}">{{ course.coordinator.name }}</a></td>
                 <td>Coordinator, Teacher</td>
             </tr>
             {% for u in course.teachers.all %}
                 {% if u != course.coordinator %}
                 <tr>
-                    <td><a href="../../../user/{{ u.kerberos }}">{{ u.name }}</a></td>
+                    <td><a href="{% url 'profile' u.kerberos %}">{{ u.name }}</a></td>
                     <td>Teacher</td>
                 </tr>
                 {% endif %}
             {% endfor %}
             {% for u in course.students.all %}
                 <tr>
-                    <td><a href="../../../user/{{ u.kerberos }}">{{ u.name }}</a></td>
+                    <td><a href="{% url 'profile' u.kerberos %}">{{ u.name }}</a></td>
                     <td>Student</td>
                 </tr>
             {% endfor %}

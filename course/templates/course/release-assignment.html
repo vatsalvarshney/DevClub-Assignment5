@@ -1,7 +1,7 @@
 {% extends 'course/base.html' %}
 
 {% block title %}
-Delete Section | {{ course }}
+Release {{ sec.title }} | {{ course }}
 {% endblock %}
 
 {% block content %}
@@ -12,13 +12,14 @@ Delete Section | {{ course }}
         {% if isstudent %}
             You are not authorized to access this page. Contact the admin if you think this is a mistake.
         {% else %}
-            <h3>Are you sure you want to delete section "{{ sec.title }}"?</h3>
-            <div>The section and all its items will be permanently deleted and cannot be restored once deleted</div>
+            <h2>Release {{ sec.title }}</h2>
+            <h3>Are you sure you want to release the Assignment "{{ sec.title }}"?</h3>
+            <div>The students will be able to view the material on the assignment page and allowed to make submissions once the assignment is released.</div>
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
-                <button type="submit">Delete</button>
+                <button type="submit">Release</button>
             </form>
         {% endif %}
     {% endif %}

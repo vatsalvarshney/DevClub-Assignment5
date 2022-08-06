@@ -1,7 +1,8 @@
 {% extends 'course/base.html' %}
+{% load static %}
 
 {% block title %}
-Update Section | {{ course }}
+Grade | {{ sec.title }} | {{ course }}
 {% endblock %}
 
 {% block content %}
@@ -10,12 +11,14 @@ Update Section | {{ course }}
         You are not enrolled in this course
     {% else %}
         {% if isstudent %}
-            You are not authorized to access this page. Contact the admin if you think this is a mistake.
-        {% else %}
-            <h2>Update Section</h2>
+        You are not authorized to access this page. Contact the admin if you think this is a mistake.
+        {% elif isinstructor %}
+            <h2>{{ sec.title }}</h2>
+            <h3>Mark Grade for {{ submission.submitter.name }}</h3>
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <fieldset>
+                    <p>Maximum possible grade: {{ assignment.max_grade }}</p>
                     {{ form.as_p }}
                 </fieldset>
                 <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>

@@ -1,0 +1,38 @@
+{% extends 'course/base.html' %}
+{% load static %}
+
+{% block title %}
+Submission | {{ sec.title }} | {{ course }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ course }}: {{ course.title }}</h1>
+    {% if not enrolled %}
+        You are not enrolled in this course
+    {% else %}
+        {% if isstudent %}
+        You are not authorized to access this page. Contact the admin if you think this is a mistake.
+        {% elif isinstructor %}
+            <h2>{{ sec.title }}</h2>
+            <a href="{% url 'assignment' id=course.id assignment_id=assignment.id %}">Back to Assignment</a>
+            <h3>Submission</h3>
+            <p><b>Status: </b>{{ submission.get_status_display }}</p>
+            {% if submission.status == 1 %}
+                <p><b>To be submitted by: </b><a href="{% url 'profile' k=submission.submitter.kerberos %}">{{ submission.submitter.name }} ({{ submission.submitter.kerberos }})</a></p>
+            {% else %}
+                <p><b>Submitted by: </b><a href="{% url 'profile' k=submission.submitter.kerberos %}">{{ submission.submitter.name }} ({{ submission.submitter.kerberos }})</a></p>
+                <p><b>Submitted File: </b><img src="{{ submission.submitted_file_icon }}" width="15" height="15"><a href="{{ submission.submitted_file.url }}">{{ submission.submitted_file_name }}</a></p>
+                <p><b>Submission Time: </b>{{ submission.submitting_time }}</p>
+            {% endif %}
+            {% if submission.status == 2 %}
+                <a href="{% url 'mark-grade' id=course.id assignment_id=assignment.id submission_id=submission.id %}"><button>Mark Grade</button></a>
+            {% endif %}
+            {% if submission.status == 3 %}
+                <p><b>Grade: </b>{{ submission.grade }}/{{ assignment.max_grade }}</p>
+                <p><b>Grader: </b>{{ submission.grader.name }}</p>
+                <p><b>Comments: </b>{{ submission.grader_comments }}</p>
+                <a href="{% url 'mark-grade' id=course.id assignment_id=assignment.id submission_id=submission.id %}"><button>Edit Grade</button></a>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

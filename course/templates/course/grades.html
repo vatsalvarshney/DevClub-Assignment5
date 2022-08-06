@@ -1,0 +1,53 @@
+{% extends 'course/base.html' %}
+
+{% block title %}
+Grades | {{ course }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ course }}: {{ course.title }}</h1>
+    {% if not enrolled %}
+        You are not enrolled in this course
+    {% else %}
+        <h2>Grades</h2>
+        {% if isstudent %}
+            <table border="1" cellpadding="8">
+                <tr>
+                    <th>Grade item</th>
+                    <th>Grade</th>
+                    <th>Max grade</th>
+                    <th>Average</th>
+                    <th>Std. Dev.</th>
+                </tr>
+                {% for sub in sub_list %}
+                <tr>
+                    <td><a href="{% url 'assignment' id=course.id assignment_id=sub.assignment.id %}">{{ sub.assignment.section.title }}</a></td>
+                    {% if sub.grade is None %}
+                    <td>-</td>
+                    {% else %}
+                    <td>{{ sub.grade }}</td>
+                    {% endif %}
+                    <td>{{ sub.assignment.max_grade }}</td>
+                    {% if sub.assignment.grade_avg is None %}
+                    <td>-</td>
+                    {% else %}
+                    <td>{{ sub.assignment.grade_avg }}</td>
+                    {% endif %}
+                    {% if sub.assignment.grade_stdev is None %}
+                    <td>-</td>
+                    {% else %}
+                    <td>{{ sub.assignment.grade_stdev }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                <tr>
+                    <th>Total</th>
+                    <th>{{ student_grade_total }}</th>
+                    <th>{{ course.course_grade_total }}</th>
+                    <th>{{ course.grade_avg }}</th>
+                    <th>{{ course.grade_stdev }}</th>
+                </tr>
+            </table>
+        {% endif %}
+    {% endif %}
+{% endblock %}

@@ -86,6 +86,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.kerberos
     
     def name(self):
+        if self.middle_name=='':
+            return self.first_name+' '+self.last_name
         return self.first_name+' '+self.middle_name+' '+self.last_name
 
     def roles(self):

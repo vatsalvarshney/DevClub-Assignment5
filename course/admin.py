@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, CourseSection, Item, Document, Link, Text, Page, Grade
+from .models import Course, CourseSection, Item, Document, Link, Text, Page, Assignment, Submission, Grade
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -16,6 +16,8 @@ admin.site.register(Document)
 admin.site.register(Link)
 admin.site.register(Text)
 admin.site.register(Page)
+admin.site.register(Assignment)
+admin.site.register(Submission)
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):

@@ -1,0 +1,134 @@
+{% extends 'course/base.html' %}
+{% load static %}
+
+{% block title %}
+{{ sec.title }} | {{ course }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ course }}: {{ course.title }}</h1>
+    {% if not enrolled %}
+        You are not enrolled in this course
+    {% else %}
+        {% if isinstructor %}
+            <a href="{% url 'update-assignment' id=course.id assignment_id=assignment.id %}">Edit Assignment</a><br>
+            <a href="{% url 'create-assignment-document' id=course.id assignment_id=assignment.id %}">New Document</a><br>
+            <a href="{% url 'create-assignment-link' id=course.id assignment_id=assignment.id %}">New Link</a><br>
+            <a href="{% url 'create-assignment-text' id=course.id assignment_id=assignment.id %}">New Text Block</a><br>
+        {% endif %}
+        {% if sec.access == 3 or isinstructor %}
+            <h2>{{ sec.title }}
+            {% if isinstructor %}
+                <a href="{% url 'update-assignment' id=course.id assignment_id=assignment.id %}"><img src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>
+                <a href="{% url 'delete-item' id=course.id item_id=assignment.item.id %}"><img src="{% static 'course/delete-icon.png' %}" width="15" height="15"></a>
+            {% endif %}</h2>
+            {% for item in sec.item_set.all %}
+                {% if item.access == 1 and item.author != user %}
+                {% elif item.access == 2 and isstudent %}
+                {% else %}
+                    {% if item.related_object_type == 'text' %}
+                        {{ item.text.content }}
+                    {% else %}
+                        <a href="{{ item.url }}"><img src="{{ item.icon }}" width="20" height="20">{{ item.display_text }}</a>
+                    {% endif %}
+                    {% if isinstructor %}
+                        <a href="update/{{ item.related_object_type }}/{{ item.related_object.id }}"><img src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>
+                        <a href="delete/item/{{ item.id }}"><img src="{% static 'course/delete-icon.png' %}" width="15" height="15"></a>
+                    {% endif %}
+                    <br>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <h3>Details</h3>
+        <p><b>Maximum possible grade: </b>{{ assignment.max_grade }}</p>
+        <p><b>Due Date: </b>{{ assignment.due_time }}</p>
+        <p><b>Late Due Date: </b>{{ assignment.late_due_time }}</p>
+        {% if isstudent %}
+            <h3>Submission</h3>
+            <p><b>Status: </b>{{ submission.get_status_display }}</p>
+            {% if submission.status != 1 %}
+                <p><b>Submitted File: </b><img src="{{ submission.submitted_file_icon }}" width="15" height="15"><a href="{{ submission.submitted_file.url }}">{{ submission.submitted_file_name }}</a></p>
+                <p><b>Submission Time: </b>{{ submission.submitting_time }}</p>
+            {% endif %}
+            {% if submission.status == 3 %}
+                <p><b>Grade: </b>{{ submission.grade }}/{{ assignment.max_grade }}</p>
+                <p><b>Grader: </b><a href="{% url 'profile' k=submission.grader.kerberos %}">{{ submission.grader.name }}</a></p>
+                <p><b>Graded at: </b>{{ submission.grading_time }}</p>
+            {% endif %}
+            {% if sub_allowed and submission.status != 3 %}
+                <a href="{% url 'make-submission' id=course.id assignment_id=assignment.id %}"><button>
+                    {% if submission.status == 1 %}
+                        Make Submission
+                    {% else %}
+                        Edit Submission
+                    {% endif %}
+                </button></a>
+            {% endif %}
+        {% endif %}
+        {% if isinstructor %}
+            <h2>Submissions</h2>
+            <h3>Ungraded ({{ ungraded_set.count }})</h3>
+            {% if ungraded_set.count == 0 %}
+                <p>No ungraded submissions</p>
+            {% else %}
+                <table border="1" cellpadding="8">
+                    <tr>
+                        <th>Student</th>
+                        <th>Submission Time</th>
+                        <th>View Submission</th>
+                    </tr>
+                    {% for sub in ungraded_set.all %}
+                    <tr>
+                        <td><a href="{% url 'profile' k=sub.submitter.kerberos %}">{{ sub.submitter.name }}</a></td>
+                        <td>{{ sub.submitting_time }}</td>
+                        <td><a href="{% url 'view-student-submission' id=course.id assignment_id=assignment.id submission_id=sub.id %}">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            <h3>Graded ({{ graded_set.count }})</h3>
+            {% if graded_set.count == 0 %}
+                <p>No graded submissions</p>
+            {% else %}
+                <table border="1" cellpadding="8">
+                    <tr>
+                        <th>Student</th>
+                        <th>Submission Time</th>
+                        <th>Grade</th>
+                        <th>Grader</th>
+                        <th>Grading Time</th>
+                        <th>View Submission/Edit Grade</th>
+                    </tr>
+                    {% for sub in graded_set.all %}
+                    <tr>
+                        <td><a href="{% url 'profile' k=sub.submitter.kerberos %}">{{ sub.submitter.name }}</a></td>
+                        <td>{{ sub.submitting_time }}</td>
+                        <td>{{ sub.grade }}</td>
+                        <td><a href="{% url 'profile' k=sub.grader.kerberos %}">{{ sub.grader.name }}</a></td>
+                        <td>{{ sub.grading_time }}</td>
+                        <td><a href="{% url 'view-student-submission' id=course.id assignment_id=assignment.id submission_id=sub.id %}">View</a> | <a href="{% url 'mark-grade' id=course.id assignment_id=assignment.id submission_id=sub.id %}">Edit</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            <h3>Not Submitted ({{ no_submission_set.count }})</h3>
+            {% if no_submission_set.count == 0 %}
+                <p>All the students have submitted the assignment</p>
+            {% else %}
+                <table border="1" cellpadding="8">
+                    <tr>
+                        <th>Student</th>
+                    </tr>
+                    {% for sub in no_submission_set.all %}
+                    <tr>
+                        <td><a href="{% url 'profile' k=sub.submitter.kerberos %}">{{ sub.submitter.name }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            {% if assignment.item.access == 2 %}
+                <a href="{% url 'release-assignment' id=course.id assignment_id=assignment.id %}"><button>Release Assignment</button></a>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

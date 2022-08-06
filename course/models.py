@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from users.models import CustomUser
-import statistics, os
+import statistics, os, uuid, math
 from django.conf import settings
 from django_cleanup import cleanup
 
@@ -34,14 +34,42 @@ class Course(models.Model):
     def __str__(self):
         return f'{self.semester}-{self.course_code}'
 
-    def grade_count(self):
-        return self.grade_set.all().count()
+    def visible_assignment_list(self):
+        """ Returns LIST of all the Assignment objects accessible to everyone in the course """
+        lst=[]
+        for sec in self.coursesection_set.filter(show_on_main_page=True):
+            for i in sec.item_set.all():
+                if i.related_object_type()=='assignment' and i.access==3:
+                    lst.append(i.related_object())
+        return lst
+    
+    def visible_submission_list(self, student):
+        return [Submission.objects.get(assignment=a, submitter=student) for a in self.visible_assignment_list()]
+    
+    def student_grade_total(self, student):
+        try:
+            return round(sum([s.grade or 0 for s in self.visible_submission_list(student)]),3)
+        except statistics.StatisticsError:
+            return '-'
+    
+    def course_grade_total(self):
+        try:
+            return round(sum([s.max_grade or 0 for s in self.visible_assignment_list()]),3)
+        except statistics.StatisticsError:
+            return '-'
 
     def grade_avg(self):
-        return statistics.fmean([g.grade for g in self.grade_set.all()])
+        try:
+            return round(statistics.mean([self.student_grade_total(stu) for stu in self.students.all()]),3)
+            # return round(sum([a.grade_avg() or 0 for a in self.visible_assignment_list()]),3)
+        except statistics.StatisticsError:
+            return '-'
 
     def grade_stdev(self):
-        return statistics.stdev([g.grade for g in self.grade_set.all()])
+        try:
+            return round(statistics.stdev([self.student_grade_total(stu) for stu in self.students.all()]),3)
+        except statistics.StatisticsError:
+            return '-'
     
     def save(self, *args, **kwargs):
         if self._state.adding == True:
@@ -97,7 +125,10 @@ class Item(models.Model):
                 try:
                     return self.text
                 except:
-                    return self.page
+                    try:
+                        return self.page
+                    except:
+                        return self.assignment
     
     def related_object_type(self):
         try:
@@ -112,8 +143,12 @@ class Item(models.Model):
                     self.text
                     return 'text'
                 except:
-                    self.page
-                    return 'page'
+                    try:
+                        self.page
+                        return 'page'
+                    except:
+                        self.assignment
+                        return 'assignment'
 
 
 
@@ -204,11 +239,115 @@ class Page(models.Model):
 
 
 
-# class Assignment(models.Model):
-#     item = models.OneToOneField(Item, on_delete=models.CASCADE)
-#     release_time = models.DateTimeField(default=timezone.now)
-#     due_time = models.DateTimeField()
-#     late_due_time = models.DateTimeField(blank=True)
+class Assignment(models.Model):
+    item = models.OneToOneField(Item, on_delete=models.CASCADE)
+    section = models.OneToOneField(CourseSection, on_delete=models.CASCADE)
+    # release_time = models.DateTimeField(default=timezone.now)
+    due_time = models.DateTimeField()
+    late_due_time = models.DateTimeField(blank=True, null=True)
+    max_grade = models.FloatField(default=100.0)
+
+    def save(self, *args, **kwargs):
+        is_new=self._state.adding
+        self.section.show_on_main_page = False
+        self.section.save()
+        self.item.icon = '/media/course/icons/assignment.png'
+        if self.item.display_text == '':
+            self.item.display_text = self.section.title
+        self.section.title = self.item.display_text
+        self.section.save()
+        self.item.save()
+        if self.late_due_time=='':
+            self.late_due_time=self.due_time
+        super().save(*args, **kwargs)
+        self.item.url = 'assignment/'+str(self.id)
+        self.item.save()
+        if is_new:
+            for st in self.section.course.students.all():
+                sub = Submission(assignment=self, submitter=st)
+                sub.save()
+        return super().save(*args, **kwargs)
+    
+    def release(self):
+        self.item.access = 3
+        self.item.save()
+        self.section.access = 3
+        self.section.save()
+        for i in self.section.item_set.all():
+            i.access = 3
+            i.save()
+        self.save()
+    
+    def grade_avg(self):
+        try:
+            return round(statistics.fmean([s.grade for s in self.submission_set.filter(status=3)]),3)
+        except statistics.StatisticsError:
+            return None
+
+    def grade_stdev(self):
+        try:
+            return round(statistics.stdev([s.grade for s in self.submission_set.filter(status=3)]),3)
+        except statistics.StatisticsError:
+            return None
+
+
+
+class Submission(models.Model):
+
+    class StatusChoices(models.IntegerChoices):
+        no_submission = 1, 'No Submission'
+        ungraded = 2, 'Ungraded'
+        graded = 3, 'Graded'
+
+    def submission_upload(instance, filename):
+        name=filename.split('.')[0]
+        ext=filename.split('.')[-1]
+        return os.path.join(settings.MEDIA_ROOT, 'course', str(instance.assignment.item.section.course.id), str(instance.submitter.kerberos), name+'-'+str(uuid.uuid4())+'.'+ext)
+
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    submitter = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    submitted_file = models.FileField(upload_to=submission_upload, blank=True, null=True, max_length=500)
+    submitted_file_name = models.CharField(max_length=200, blank=True)
+    submitted_file_icon = models.ImageField(blank=True, null=True)
+    submitting_time = models.DateTimeField(blank=True, null=True)
+    status = models.PositiveSmallIntegerField(choices=StatusChoices.choices, default=1)
+    grade = models.FloatField(blank=True, null=True)
+    grader = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE, 
+        limit_choices_to={'role': 2},
+        blank=True,
+        null=True,
+        related_name='submissions_graded'
+    )
+    grader_comments = models.TextField(blank=True)
+    grading_time = models.DateTimeField(blank=True, null=True)
+
+    def submit(self, file, name):
+        self.submitted_file=file
+        if name=='':
+            self.submitted_file_name=file.name.split('/')[-1].split('.')[0]
+        else:
+            self.submitted_file_name=name
+        ext=file.name.split('.')[-1]
+        icon_list={
+            'pdf':'pdf.jpg',
+            'txt':'txt.jpg',
+            **dict.fromkeys(['jpg','jpeg','jfif','pjpeg','pjp','png','svg','webp'], 'image.jpg'),
+            **dict.fromkeys(['doc','docx','docm','dot','dotx'], 'docx.jpg'),
+            **dict.fromkeys(['ppt','pptx','pptm','pps','ppsx','ppsm','pot','potx','potm'], 'pptx.jpg'),
+            **dict.fromkeys(['xls','xlsx','xlsm','xlt','xltx','xltm','xla','xlam','xll','xlm'], 'xlsx.jpg'),
+            **dict.fromkeys(['zip','rar'], 'zip.jpg'),
+            **dict.fromkeys(['m4a','mp3','wav','wma','aac','aa','aax','flac',], 'audio.jpg'),
+            **dict.fromkeys(['mov','mp4','wmv','avi','flv','mkv'], 'video.jpg')
+        }
+        self.submitted_file_icon='/media/course/icons/' + icon_list.get(ext, 'default.jpg')
+        self.status = 2
+        self.submitting_time = timezone.now()
+        self.save()
+        
+
+
 
 
 # class Quiz(models.Model):
