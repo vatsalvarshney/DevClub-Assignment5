@@ -2,6 +2,8 @@
 
 Introducing a Learning Management system, a platform where both instructors and students login, and for each course, the instructor uses the platform to share resources, release grades, conduct assignments and what not!
 
+Deployed at: https://devclublms-vatsal.herokuapp.com/
+
 ## Features
 ### User Authentication
 ![Screenshot (140)](https://user-images.githubusercontent.com/97669734/183305332-db7a3b8b-965c-4f28-a874-d4b319495669.png)
