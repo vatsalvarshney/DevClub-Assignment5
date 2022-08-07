@@ -4,7 +4,6 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
 from .models import CustomUser, Role
@@ -35,18 +34,6 @@ class UserCreationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
-
-# class UserChangeForm(forms.ModelForm):
-#     """A form for updating users. Includes all the fields on
-#     the user, but replaces the password field with admin's
-#     disabled password hash display field.
-#     """
-#     password = ReadOnlyPasswordHashField()
-
-#     class Meta:
-#         model = CustomUser
-#         fields = ('kerberos', 'password', 'is_active')
 
 
 class UserAdmin(BaseUserAdmin):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, CourseSection, Item, Document, Link, Text, Page, Assignment, Submission, Grade
+from .models import Course, CourseSection, Item, Document, Link, Text, Page, Assignment, Submission
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -22,7 +22,3 @@ admin.site.register(Submission)
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     readonly_fields= ('time_posted', 'time_last_modified')
-
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ('grade', 'student', 'course')

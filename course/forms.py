@@ -1,5 +1,5 @@
 from django import forms
-from .models import Course, CourseSection, Item, Document, Link, Text, Page, Assignment, Submission, Grade
+from .models import Course, CourseSection, Item, Document, Link, Text, Page, Assignment, Submission
 from django.forms.widgets import SelectDateWidget
 from django.contrib.admin.widgets import AdminSplitDateTime
 

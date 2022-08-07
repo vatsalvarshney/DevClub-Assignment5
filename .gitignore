@@ -1,5 +1,6 @@
 demo/django-env
 env/
+staticfiles/
 
 .DS_Store
 
@@ -12,3 +13,5 @@ __pycache__
 
 *.log
 local_settings.py
+db.sqlite3
+db.sqlite3-journal
