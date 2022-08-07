@@ -6,6 +6,7 @@ urlpatterns = [
     path('', course_views.courseHome, name='course-home'),
     path('participants/', course_views.courseParticipants, name='course-participants'),
     path('grades/', course_views.grades, name='grades'),
+    path('grades/<slug:k>/', course_views.studentGrades, name='student-grades'),
 
     path('new/section/', course_views.createSection, name='create-section'),
     path('new/document/', course_views.createDocument, name='create-document'),

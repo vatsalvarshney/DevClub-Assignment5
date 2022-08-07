@@ -9,8 +9,9 @@ Participants | {{ course }}
     {% if not enrolled %}
         You are not enrolled in this course
     {% else %}
+        <a href="{% url 'course-home' id=course.id %}">Back to Course home</a>
         <h2>Participants</h2>
-        <table>
+        <table class="table">
             <tr>
                 <th>Name</th>
                 <th>Role</th>

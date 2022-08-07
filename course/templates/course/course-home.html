@@ -14,6 +14,24 @@
     {% if not enrolled %}
         You are not enrolled in this course
     {% else %}
+        <a href="{% url 'course-participants' id=course.id %}">Participants</a><br>
+        <a href="{% url 'grades' id=course.id %}">Grades</a><br>
+        {% if isinstructor %}
+            <a href="{% url 'update-course' id=course.id %}">Edit Course</a><br>
+            <div class="mt-2 dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    New
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{% url 'create-section' id=course.id %}">New Section</a>
+                    <a class="dropdown-item" href="{% url 'create-document' id=course.id %}">New Document</a>
+                    <a class="dropdown-item" href="{% url 'create-link' id=course.id %}">New Link</a>
+                    <a class="dropdown-item" href="{% url 'create-text' id=course.id %}">New Text Block</a>
+                    <a class="dropdown-item" href="{% url 'create-page' id=course.id %}">New Page</a>
+                    <a class="dropdown-item" href="{% url 'create-assignment' id=course.id %}">New Assignment</a>
+                </div>
+            </div>
+        {% endif %}
         {% if course.description != '' %}
             <h2>Course Description
                 {% if isinstructor %}
@@ -21,17 +39,6 @@
                 {% endif %}
             </h2>
             <p>{{ course.description }}</p>
-        {% endif %}
-        <a href="{% url 'course-participants' id=course.id %}">Participants</a><br>
-        <a href="{% url 'grades' id=course.id %}">Grades</a><br>
-        {% if isinstructor %}
-            <a href="{% url 'update-course' id=course.id %}">Edit Course</a><br>
-            <a href="{% url 'create-section' id=course.id %}">New Section</a><br>
-            <a href="{% url 'create-document' id=course.id %}">New Document</a><br>
-            <a href="{% url 'create-link' id=course.id %}">New Link</a><br>
-            <a href="{% url 'create-text' id=course.id %}">New Text Block</a><br>
-            <a href="{% url 'create-page' id=course.id %}">New Page</a><br>
-            <a href="{% url 'create-assignment' id=course.id %}">New Assignment</a>
         {% endif %}
         {% for sec in course.coursesection_set.all %}
             {% if sec.access == 3 or isinstructor %}
@@ -41,22 +48,31 @@
                     <a href="{% url 'update-section' id=course.id sec_id=sec.id %}"><img src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>
                     <a href="{% url 'delete-section' id=course.id sec_id=sec.id %}"><img src="{% static 'course/delete-icon.png' %}" width="15" height="15"></a>
                 {% endif %}</h2>
+                <ul class="list-group list-group-flush">
                 {% for item in sec.item_set.all %}
                     {% if item.access == 1 and item.author != user %}
                     {% elif item.access == 2 and isstudent %}
                     {% else %}
+                    <li class="list-group-item container">
+                        <div class="row">
                         {% if item.related_object_type == 'text' %}
                             {{ item.text.content }}
                         {% else %}
-                            <a href="{{ item.url }}"><img src="{{ item.icon }}" width="20" height="20">{{ item.display_text }}</a>
+                            <div class="col-1"><img src="{{ item.icon }}" width="30" height="30"></div>
+                            <a class="col-6" href="{{ item.url }}">{{ item.display_text }}</a>
                         {% endif %}
                         {% if isinstructor %}
-                            <a href="update/{{ item.related_object_type }}/{{ item.related_object.id }}"><img src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>
-                            <a href="delete/item/{{ item.id }}"><img src="{% static 'course/delete-icon.png' %}" width="15" height="15"></a>
+                            <div class="col-2">
+                                <a href="update/{{ item.related_object_type }}/{{ item.related_object.id }}"><img class="mr-2" src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>
+                                <a href="delete/item/{{ item.id }}"><img src="{% static 'course/delete-icon.png' %}" width="15" height="15"></a>
+                            </div>
                         {% endif %}
-                        <br>
+                        <div class="col-3 text-muted smallText"><i>Last Modified: {{ item.time_last_modified }}</i></div>
+                        </div>
+                    </li>
                     {% endif %}
                 {% endfor %}
+                </ul>
             {% endif %}
             {% endif %}
         {% endfor %}

@@ -1,4 +1,5 @@
 {% extends 'course/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}
 Submit {{ sec.title }} | {{ course }}
@@ -16,9 +17,9 @@ Submit {{ sec.title }} | {{ course }}
             <div>Upload your submission in a single file and click on 'Submit'</div>
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
-                <button type="submit">Submit</button>
+                {{ form|crispy }}
+                <button class="btn btn-secondary" onclick="javascript:window.history.back(-1);return false;">Cancel</button>
+                <button class="btn btn-secondary" type="submit">Submit</button>
             </form>
         {% else %}
             <h3>Submission time is over.</h3>

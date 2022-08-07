@@ -17,6 +17,7 @@
             <a href="{% url 'create-page-text' id=course.id page_id=page.id %}">New Text Block</a><br>
         {% endif %}
         {% if sec.access == 3 or isinstructor %}
+            <a href="{% url 'course-home' id=course.id %}">Back to Course home</a>
             <h2>{{ sec.title }}
             {% if isinstructor %}
                 <a href="{% url 'update-page' id=course.id page_id=page.id %}"><img src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>

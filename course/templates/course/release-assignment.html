@@ -1,4 +1,5 @@
 {% extends 'course/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}
 Release {{ sec.title }} | {{ course }}
@@ -17,9 +18,9 @@ Release {{ sec.title }} | {{ course }}
             <div>The students will be able to view the material on the assignment page and allowed to make submissions once the assignment is released.</div>
             <form method="POST">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
-                <button type="submit">Release</button>
+                {{ form|crispy }}
+                <button class="btn btn-secondary" onclick="javascript:window.history.back(-1);return false;">Cancel</button>
+                <button class="btn btn-secondary" type="submit">Release</button>
             </form>
         {% endif %}
     {% endif %}

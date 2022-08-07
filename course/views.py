@@ -6,6 +6,7 @@ from users.models import Role, CustomUser
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib import messages
 
 
 def dashboardRedirect(request):
@@ -47,8 +48,8 @@ def updateCourse(request, id):
         form = CourseUpdateForm(request.POST, instance=c['course'])
         if form.is_valid():
             c['course'].save()
+            messages.success(request, 'Course has been updated!')
             return redirect(reverse('course-home', args=[id]))
-            # return redirect('../../')
     else:
         form =CourseUpdateForm(instance=c['course'])
     c['form']=form
@@ -66,6 +67,7 @@ def createSection(request, id):
                 access = form.cleaned_data.get('access')
             )
             sec.save()
+            messages.success(request, f'Section "{sec.title}" has been created!')
             return redirect(reverse('course-home', args=[id]))
     else:
         form =SectionCreationForm()
@@ -95,6 +97,7 @@ def createItem(request, id, model, modelform, modelfields, excludedfields=[]):
                     setattr(ins, field, request.POST.get(field))
             ins.save()
             item.save()
+            messages.success(request, f'{item.related_object_type().capitalize()} "{item.display_text}" has been created!')
             return redirect(reverse('course-home', args=[id]))
     else:
         iform=ItemCreationForm()
@@ -142,6 +145,7 @@ def createPage(request, id):
                 section = sec
             )
             page.save()
+            messages.success(request, f'Page "{sec.title}" has been created!')
             return redirect(reverse('page', args=[id,page.id]))
     else:
         iform = ItemCreationForm()
@@ -160,6 +164,7 @@ def updateSection(request, id, sec_id):
         form = SectionCreationForm(request.POST, instance=sec)
         if form.is_valid():
             sec.save()
+            messages.success(request, f'Section "{sec.title}" has been updated!')
             return redirect(reverse('course-home', args=[id]))
     else:
         form =SectionCreationForm(instance=sec)
@@ -183,6 +188,7 @@ def updateItem(request, id, ins_id, model, modelform, modelfields, excludedfield
                 else:
                     setattr(ins, field, request.POST.get(field))
             ins.save()
+            messages.success(request, f'{item.related_object_type().capitalize()} "{item.display_text}" has been updated!')
             return redirect(reverse('course-home', args=[id]))
     else:
         iform=ItemCreationForm(instance=item)
@@ -212,7 +218,10 @@ def deleteItem(request, id, item_id):
     if request.method == 'POST':
         form = ConfirmationForm(request.POST)
         if form.is_valid and request.POST.get('agree'):
+            t=item.display_text
+            i=item.related_object_type().capitalize()
             item.delete()
+            messages.success(request, f'{i} "{t}" has been deleted successfully')
             return redirect(reverse('course-home', args=[id]))
     else:
         form = ConfirmationForm()
@@ -226,7 +235,9 @@ def deleteSection(request, id, sec_id):
     if request.method == 'POST':
         form = ConfirmationForm(request.POST)
         if form.is_valid and request.POST.get('agree'):
+            t=sec.title
             sec.delete()
+            messages.success(request, f'Section "{t}" has been deleted successfully')
             return redirect(reverse('course-home', args=[id]))
     else:
         form = ConfirmationForm()
@@ -252,6 +263,7 @@ def updatePage(request, id, page_id):
             item.save()
             sec.save()
             page.save()
+            messages.success(request, f'Page "{sec.title}" has been created!')
             return redirect(reverse('page', args=[id,page_id]))
     else:
         iform = ItemCreationForm(instance=item)
@@ -287,6 +299,7 @@ def createPageItem(request, id, page_id, model, modelform, modelfields, excluded
                     setattr(ins, field, request.POST.get(field))
             ins.save()
             item.save()
+            messages.success(request, f'{item.related_object_type().capitalize()} "{item.display_text}" has been created!')
             return redirect(reverse('page', args=[id, page_id]))
     else:
         iform=ItemCreationForm()
@@ -327,6 +340,7 @@ def updatePageItem(request, id, page_id, ins_id, model, modelform, modelfields, 
                 else:
                     setattr(ins, field, request.POST.get(field))
             ins.save()
+            messages.success(request, f'{item.related_object_type().capitalize()} "{item.display_text}" has been updated!')
             return redirect(reverse('page', args=[id,page_id]))
     else:
         iform=ItemCreationForm(instance=item)
@@ -356,7 +370,10 @@ def deletePageItem(request, id, page_id, item_id):
     if request.method == 'POST':
         form = ConfirmationForm(request.POST)
         if form.is_valid and request.POST.get('agree'):
+            t=item.display_text
+            i=item.related_object_type().capitalize()
             item.delete()
+            messages.success(request, f'{i} "{t}" has been deleted successfully')
             return redirect(reverse('page', args=[id,page_id]))
     else:
         form = ConfirmationForm()
@@ -400,7 +417,8 @@ def createAssignment(request, id):
                 # late_due_time = (request.POST.get('late_due_time_0'),request.POST.get('late_due_time_1')),
             )
             asgmt.save()
-            return redirect(reverse('course-home', args=[id]))
+            messages.success(request, f'Assignment {sec.title} has been created!')
+            return redirect(reverse('assignment', args=[id,asgmt.id]))
     else:
         aform = AssignmentCreationForm()
         aform.fields['section'].queryset=CourseSection.objects.filter(course=c['course'], show_on_main_page=True)
@@ -430,6 +448,7 @@ def releaseAssignment(request, id, assignment_id):
         form = ConfirmationForm(request.POST)
         if form.is_valid():
             c['assignment'].release()
+            messages.success(request, f'Assignment {c["sec"].title} has been released to students!')
             return redirect(reverse('assignment', args=[id,assignment_id]))
     else:
         form = ConfirmationForm()
@@ -449,6 +468,7 @@ def updateAssignment(request, id, assignment_id):
         if iform.is_valid() and aform.is_valid():
             item.save()
             asgmt.save()
+            messages.success(request, f'Assignment {asgmt.section.title} has been updated!')
             return redirect(reverse('assignment', args=[id,assignment_id]))
     else:
         iform = ItemCreationForm(instance=item)
@@ -485,6 +505,7 @@ def createAssignmentItem(request, id, assignment_id, model, modelform, modelfiel
                     setattr(ins, field, request.POST.get(field))
             ins.save()
             item.save()
+            messages.success(request, f'{item.related_object_type().capitalize()} "{item.display_text}" has been created!')
             return redirect(reverse('assignment', args=[id, assignment_id]))
     else:
         iform=ItemCreationForm()
@@ -525,6 +546,7 @@ def updateAssignmentItem(request, id, assignment_id, ins_id, model, modelform, m
                 else:
                     setattr(ins, field, request.POST.get(field))
             ins.save()
+            messages.success(request, f'{item.related_object_type().capitalize()} "{item.display_text}" has been updated!')
             return redirect(reverse('assignment', args=[id,assignment_id]))
     else:
         iform=ItemCreationForm(instance=item)
@@ -554,7 +576,10 @@ def deleteAssignmentItem(request, id, assignment_id, item_id):
     if request.method == 'POST':
         form = ConfirmationForm(request.POST)
         if form.is_valid and request.POST.get('agree'):
+            t=item.display_text
+            i=item.related_object_type().capitalize()
             item.delete()
+            messages.success(request, f'{i} "{t}" has been deleted successfully')
             return redirect(reverse('assignment', args=[id,assignment_id]))
     else:
         form = ConfirmationForm()
@@ -570,6 +595,7 @@ def makeSubmission(request, id, assignment_id):
         form = MakeSubmissionForm(request.FILES, request.POST, instance=submission)
         if form.is_valid():
             submission.submit(request.FILES.get('submitted_file'), request.POST.get('submitted_file_name'))
+            messages.success(request, 'Assignment has been submitted successfully!')
             return redirect(reverse('assignment', args=[id, assignment_id]))
     else:
         form = MakeSubmissionForm(instance=submission)
@@ -611,6 +637,18 @@ def markGrade(request, id, assignment_id, submission_id):
 
 def grades(request, id):
     c=context(request,id)
-    c['sub_list']=c['course'].visible_submission_list(request.user)
-    c['student_grade_total']=c['course'].student_grade_total(request.user)
+    if c['isstudent']:
+        return redirect(reverse('student-grades', args=[id,request.user.kerberos]))
+    g_list=[]
+    for stu in c['course'].students.all():
+        g_list.append((stu,c['course'].student_grade_total(stu)))
+    c['g_list']=g_list
     return render(request, 'course/grades.html', c)
+
+def studentGrades(request, id, k):
+    c=context(request,id)
+    stu=CustomUser.objects.get(kerberos=k)
+    c['allowed']=(request.user==stu or c['isinstructor'])
+    c['sub_list']=c['course'].visible_submission_list(stu)
+    c['student_grade_total']=c['course'].student_grade_total(stu)
+    return render(request, 'course/student-grades.html', c)

@@ -1,5 +1,6 @@
 {% extends 'course/base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}
 Grade | {{ sec.title }} | {{ course }}
@@ -19,10 +20,10 @@ Grade | {{ sec.title }} | {{ course }}
                 {% csrf_token %}
                 <fieldset>
                     <p>Maximum possible grade: {{ assignment.max_grade }}</p>
-                    {{ form.as_p }}
+                    {{ form|crispy }}
                 </fieldset>
-                <button onclick="javascript:window.history.back(-1);return false;">Cancel</button>
-                <button type="submit">Save</button>
+                <button class="btn btn-secondary" onclick="javascript:window.history.back(-1);return false;">Cancel</button>
+                <button class="btn btn-secondary" type="submit">Save</button>
             </form>
         {% endif %}
     {% endif %}

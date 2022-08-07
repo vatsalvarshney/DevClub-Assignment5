@@ -6,28 +6,50 @@ Dashboard
 
 {% block content %}
     <h1>Dashboard</h1>
-    <a href="{% url 'profile' k=user.kerberos %}">View profile</a>
     {% if isstudent and isinstructor %}
-        <h2>Courses Teaching</h2>
-        {% for c in user.courses_coordinating.all %}
-            <a href="{% url 'course-home' id=c.id %}">{{ c }}<br></a>
-        {% endfor %}
-        {% for c in user.courses_teaching.all %}
-            <a href="{% url 'course-home' id=c.id %}">{{ c }}<br></a>
-        {% endfor %}
-        <h2>Courses Studying</h2>
-        {% for c in user.courses_studying.all %}
-            <a href="{% url 'course-home' id=c.id %}">{{ c }}<br></a>
-        {% endfor %}
+        <h3>Courses Teaching</h3>
+        <ul class="list-group list-group-flush">
+            {% for c in user.courses_coordinating.all %}
+            <li class="list-group-item"><div class="row">
+                <div class="col-3 h5">{{ c }}</div>
+                <div class="col-9 h5"><a href="{% url 'course-home' id=c.id %}">{{ c.title }}</a></div>
+            </div></li>
+            {% endfor %}
+            {% for c in user.courses_teaching.all %}
+            <li class="list-group-item"><div class="row">
+                <div class="col-3 h5">{{ c }}</div>
+                <div class="col-9 h5"><a href="{% url 'course-home' id=c.id %}">{{ c.title }}</a></div>
+            </div></li>
+            {% endfor %}
+        </ul>
+        <h3>Courses Studying</h3>
+        <ul class="list-group list-group-flush">
+            {% for c in user.courses_studying.all %}
+            <li class="list-group-item"><div class="row">
+                <div class="col-3 h5">{{ c }}</div>
+                <div class="col-9 h5"><a href="{% url 'course-home' id=c.id %}">{{ c.title }}</a></div>
+            </div></li>
+            {% endfor %}
+        </ul>
     {% elif isstudent %}
-        <h2>Courses</h2>
-        {% for c in user.courses_studying.all %}
-            <a href="{% url 'course-home' id=c.id %}">{{ c }}<br></a>
-        {% endfor %}
+        <h3>Courses</h3>
+        <ul class="list-group list-group-flush">
+            {% for c in user.courses_studying.all %}
+            <li class="list-group-item"><div class="row">
+                <div class="col-3 h5">{{ c }}</div>
+                <div class="col-9 h5"><a href="{% url 'course-home' id=c.id %}">{{ c.title }}</a></div>
+            </div></li>
+            {% endfor %}
+        </ul>
     {% elif isinstructor %}
-        <h2>Courses</h2>
-        {% for c in user.courses_teaching.all %}
-            <a href="{% url 'course-home' id=c.id %}">{{ c }}<br></a>
-        {% endfor %}
+        <h3>Courses</h3>
+        <ul class="list-group list-group-flush">
+            {% for c in user.courses_teaching.all %}
+            <li class="list-group-item"><div class="row">
+                <div class="col-3 h5">{{ c }}</div>
+                <div class="col-9 h5"><a href="{% url 'course-home' id=c.id %}">{{ c.title }}</a></div>
+            </div></li>
+            {% endfor %}
+        </ul>
     {% endif %}
 {% endblock %}
