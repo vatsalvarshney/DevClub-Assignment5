@@ -173,7 +173,7 @@ class Document(models.Model):
             **dict.fromkeys(['m4a','mp3','wav','wma','aac','aa','aax','flac',], 'audio.jpg'),
             **dict.fromkeys(['mov','mp4','wmv','avi','flv','mkv'], 'video.jpg')
         }
-        self.item.icon=os.path.join(settings.MEDIA_ROOT, 'course/icons', icon_list.get(ext, 'default.jpg'))
+        self.item.icon=os.path.join('course/icons', icon_list.get(ext, 'default.jpg'))
         if self.item.display_text=='':
             self.item.display_text=self.file.name.split('/')[-1].split('.')[0]
         self.item.url=self.file.url
@@ -190,7 +190,7 @@ class Link(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.item.icon=os.path.join(settings.MEDIA_ROOT,'course/icons/url.jpg')
+        self.item.icon='course/icons/url.jpg'
         if self._state.adding and self.item.display_text=='':
             self.item.display_text=self.url
         self.item.url=self.url
@@ -227,7 +227,7 @@ class Page(models.Model):
     def save(self, *args, **kwargs):
         self.section.show_on_main_page = False
         self.section.save()
-        self.item.icon = os.path.join(settings.MEDIA_ROOT,'course/icons/page.jpg')
+        self.item.icon = 'course/icons/page.jpg'
         if self.item.display_text == '':
             self.item.display_text = self.section.title
         self.item.save()
@@ -250,7 +250,7 @@ class Assignment(models.Model):
         is_new=self._state.adding
         self.section.show_on_main_page = False
         self.section.save()
-        self.item.icon = os.path.join(settings.MEDIA_ROOT,'course/icons/assignment.png')
+        self.item.icon = 'course/icons/assignment.png'
         if self.item.display_text == '':
             self.item.display_text = self.section.title
         self.section.title = self.item.display_text
@@ -340,7 +340,7 @@ class Submission(models.Model):
             **dict.fromkeys(['m4a','mp3','wav','wma','aac','aa','aax','flac',], 'audio.jpg'),
             **dict.fromkeys(['mov','mp4','wmv','avi','flv','mkv'], 'video.jpg')
         }
-        self.submitted_file_icon=os.path.join(settings.MEDIA_ROOT, 'course/icons', icon_list.get(ext, 'default.jpg'))
+        self.submitted_file_icon=os.path.join('course/icons', icon_list.get(ext, 'default.jpg'))
         self.status = 2
         self.submitting_time = timezone.now()
         self.save()
