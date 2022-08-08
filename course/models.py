@@ -61,7 +61,6 @@ class Course(models.Model):
     def grade_avg(self):
         try:
             return round(statistics.mean([self.student_grade_total(stu) for stu in self.students.all()]),3)
-            # return round(sum([a.grade_avg() or 0 for a in self.visible_assignment_list()]),3)
         except statistics.StatisticsError:
             return '-'
 
@@ -155,7 +154,7 @@ class Item(models.Model):
 class Document(models.Model):
 
     def material_upload(instance, filename):
-        return os.path.join(settings.MEDIA_ROOT, 'course', str(instance.item.section.course.id), filename)
+        return os.path.join('course', str(instance.item.section.course.id), filename)
 
     item = models.OneToOneField(Item, on_delete=models.CASCADE)
     file = models.FileField(upload_to=material_upload, max_length=500)
@@ -174,7 +173,7 @@ class Document(models.Model):
             **dict.fromkeys(['m4a','mp3','wav','wma','aac','aa','aax','flac',], 'audio.jpg'),
             **dict.fromkeys(['mov','mp4','wmv','avi','flv','mkv'], 'video.jpg')
         }
-        self.item.icon='/media/course/icons/' + icon_list.get(ext, 'default.jpg')
+        self.item.icon=os.path.join(settings.MEDIA_ROOT, 'course/icons', icon_list.get(ext, 'default.jpg'))
         if self.item.display_text=='':
             self.item.display_text=self.file.name.split('/')[-1].split('.')[0]
         self.item.url=self.file.url
@@ -191,7 +190,7 @@ class Link(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.item.icon='/media/course/icons/url.jpg'
+        self.item.icon=os.path.join(settings.MEDIA_ROOT,'course/icons/url.jpg')
         if self._state.adding and self.item.display_text=='':
             self.item.display_text=self.url
         self.item.url=self.url
@@ -228,7 +227,7 @@ class Page(models.Model):
     def save(self, *args, **kwargs):
         self.section.show_on_main_page = False
         self.section.save()
-        self.item.icon = '/media/course/icons/page.jpg'
+        self.item.icon = os.path.join(settings.MEDIA_ROOT,'course/icons/page.jpg')
         if self.item.display_text == '':
             self.item.display_text = self.section.title
         self.item.save()
@@ -251,7 +250,7 @@ class Assignment(models.Model):
         is_new=self._state.adding
         self.section.show_on_main_page = False
         self.section.save()
-        self.item.icon = '/media/course/icons/assignment.png'
+        self.item.icon = os.path.join(settings.MEDIA_ROOT,'course/icons/assignment.png')
         if self.item.display_text == '':
             self.item.display_text = self.section.title
         self.section.title = self.item.display_text
@@ -302,7 +301,7 @@ class Submission(models.Model):
     def submission_upload(instance, filename):
         name=filename.split('.')[0]
         ext=filename.split('.')[-1]
-        return os.path.join(settings.MEDIA_ROOT, 'course', str(instance.assignment.item.section.course.id), str(instance.submitter.kerberos), name+'-'+str(uuid.uuid4())+'.'+ext)
+        return os.path.join('course', str(instance.assignment.item.section.course.id), str(instance.submitter.kerberos), name+'-'+str(uuid.uuid4())+'.'+ext)
 
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     submitter = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -341,7 +340,7 @@ class Submission(models.Model):
             **dict.fromkeys(['m4a','mp3','wav','wma','aac','aa','aax','flac',], 'audio.jpg'),
             **dict.fromkeys(['mov','mp4','wmv','avi','flv','mkv'], 'video.jpg')
         }
-        self.submitted_file_icon='/media/course/icons/' + icon_list.get(ext, 'default.jpg')
+        self.submitted_file_icon=os.path.join(settings.MEDIA_ROOT, 'course/icons', icon_list.get(ext, 'default.jpg'))
         self.status = 2
         self.submitting_time = timezone.now()
         self.save()
