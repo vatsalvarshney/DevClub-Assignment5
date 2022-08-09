@@ -111,8 +111,9 @@ class Item(models.Model):
     time_last_modified = models.DateTimeField(auto_now=True)
     access = models.PositiveSmallIntegerField(choices=AccessChoices.choices, default=1)
     display_text = models.CharField(max_length=200, blank=True)
-    icon = models.ImageField(default='course/icons/default.jpg')
-    url = models.URLField(max_length=500,blank=True)
+    icon = models.ImageField(blank=True, null=True)
+    # icon = models.ImageField(default='course/icons/default.jpg')
+    # url = models.URLField(max_length=500,blank=True)
 
     def related_object(self):
         try:
@@ -148,7 +149,24 @@ class Item(models.Model):
                     except:
                         self.assignment
                         return 'assignment'
-
+    
+    def get_url(self):
+        if self.related_object_type()=='document':
+            return self.related_object().file.url
+        if self.related_object_type()=='link':
+            return self.related_object().url
+        if self.related_object_type()=='text':
+            return ''
+        if self.related_object_type()=='page':
+            return 'page/'+str(self.related_object().id)
+        if self.related_object_type()=='assignment':
+            return 'assignment/'+str(self.related_object().id)
+    
+    def get_icon(self):
+        if not self.icon:
+            return 'course/icons/default.jpg'
+        else:
+            return self.icon
 
 
 class Document(models.Model):
@@ -176,7 +194,7 @@ class Document(models.Model):
         self.item.icon=os.path.join('course/icons', icon_list.get(ext, 'default.jpg'))
         if self.item.display_text=='':
             self.item.display_text=self.file.name.split('/')[-1].split('.')[0]
-        self.item.url=self.file.url
+        # self.item.url=self.file.url
         self.item.save()
         return super().save(*args, **kwargs)
 
@@ -193,7 +211,7 @@ class Link(models.Model):
         self.item.icon='course/icons/url.jpg'
         if self._state.adding and self.item.display_text=='':
             self.item.display_text=self.url
-        self.item.url=self.url
+        # self.item.url=self.url
         self.item.save()
         return super().save(*args, **kwargs)
     
@@ -232,7 +250,7 @@ class Page(models.Model):
             self.item.display_text = self.section.title
         self.item.save()
         super().save(*args, **kwargs)
-        self.item.url = 'page/'+str(self.id)
+        # self.item.url = 'page/'+str(self.id)
         self.item.save()
         return super().save(*args, **kwargs)
 
@@ -259,7 +277,7 @@ class Assignment(models.Model):
         if self.late_due_time=='':
             self.late_due_time=self.due_time
         super().save(*args, **kwargs)
-        self.item.url = 'assignment/'+str(self.id)
+        # self.item.url = 'assignment/'+str(self.id)
         self.item.save()
         if is_new:
             for st in self.section.course.students.all():

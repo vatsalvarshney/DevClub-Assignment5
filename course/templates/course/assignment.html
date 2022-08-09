@@ -40,8 +40,8 @@
                     {% if item.related_object_type == 'text' %}
                         {{ item.text.content }}
                     {% else %}
-                        <div class="col-1"><img src="{{ item.icon }}" width="30" height="30"></div>
-                        <a class="col-6" href="{{ item.url }}">{{ item.display_text }}</a>
+                        <div class="col-1"><img src="{% static item.get_icon %}" width="30" height="30"></div>
+                        <a class="col-6" href="{{ item.get_url }}">{{ item.display_text }}</a>
                     {% endif %}
                     {% if isinstructor %}
                         <div class="col-2">

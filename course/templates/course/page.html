@@ -30,7 +30,7 @@
                     {% if item.related_object_type == 'text' %}
                         {{ item.text.content }}
                     {% else %}
-                        <a href="{{ item.url }}"><img src="{{ item.icon }}" width="20" height="20">{{ item.display_text }}</a>
+                        <a href="{{ item.get_url }}"><img src="{% static item.get_icon %}" width="20" height="20">{{ item.display_text }}</a>
                     {% endif %}
                     {% if isinstructor %}
                         <a href="update/{{ item.related_object_type }}/{{ item.related_object.id }}"><img src="{% static 'course/update-icon.webp' %}" width="15" height="15"></a>

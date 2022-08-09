@@ -1,6 +1,7 @@
 demo/django-env
 env/
 staticfiles/
+media/
 
 .DS_Store
 
